@@ -1,0 +1,10 @@
+{
+  "gateway": {
+    "port": 3000
+  },
+  "proxy": {
+    "route": "*",
+    "gatewayAddress": "http://localhost:3000",
+    "targetAddress": "http://localhost:8080"
+  }
+}
