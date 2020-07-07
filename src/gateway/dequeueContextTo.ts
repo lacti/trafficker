@@ -3,12 +3,19 @@ import * as http from "http";
 import HttpContext from "./httpContext";
 import { addPrefixToHeaders } from "../utils/editHeaders";
 import { traffickerHeaderKeys } from "../constants";
+import useLogger from "../useLogger";
 
-export default function dequeueContextTo(
-  route: string,
-  context: HttpContext,
-  { res }: { res: http.ServerResponse }
-): void {
+const logger = useLogger({ name: "dequeueContextTo" });
+
+export default function dequeueContextTo({
+  route,
+  context,
+  res,
+}: {
+  route: string;
+  context: HttpContext;
+  res: http.ServerResponse;
+}): void {
   context.processing = true;
 
   res.setHeader(traffickerHeaderKeys.id, context.id);
@@ -17,24 +24,23 @@ export default function dequeueContextTo(
   const prefixedHeaders = addPrefixToHeaders(context.req.headers);
   for (const [key, value] of Object.entries(prefixedHeaders)) {
     if (value !== undefined) {
-      console.info(
-        `Set header to trafficker header`,
-        route,
-        context.id,
-        key,
-        value
+      logger.trace(
+        { route, id: context.id, key, value },
+        `Set header to trafficker header`
       );
       res.setHeader(key.toLowerCase(), value);
     }
   }
-  console.info(
-    `Redirect context`,
-    route,
-    context.id,
-    context.req.url,
-    context.req.method,
-    context.req.headers
+  logger.debug(
+    {
+      route,
+      id: context.id,
+      url: context.req.url,
+      method: context.req.method,
+      headers: context.req.headers,
+    },
+    `Redirect context`
   );
   context.req.pipe(res);
-  console.info(`Redirect body from origin request`, route, context.id);
+  logger.info({ route, id: context.id }, `Redirect body from origin request`);
 }

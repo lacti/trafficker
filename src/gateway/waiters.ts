@@ -1,6 +1,9 @@
 import * as http from "http";
 
+import { nanoid } from "nanoid";
+
 interface Waiter {
+  id: string;
   req: http.IncomingMessage;
   res: http.ServerResponse;
 }
@@ -17,27 +20,27 @@ export default function useWaiters({ route }: { route: string }) {
     res,
   }: {
     route: string;
-  } & Waiter) {
+  } & Omit<Waiter, "id">): string {
     if (!(route in waiters)) {
       waiters[route] = [];
     }
-    waiters[route].push({ req, res });
+    const id = nanoid();
+    waiters[route].push({ id, req, res });
+    return id;
   }
 
-  function isStillWaiting({ req, res }: Waiter): boolean {
+  function isStillWaiting(id: string): boolean {
     if (!(route in waiters)) {
       return false;
     }
-    return waiters[route].some((w) => w.req === req && w.res === res);
+    return waiters[route].some((w) => w.id === id);
   }
 
-  function dropWaiter({ req, res }: Waiter): void {
+  function dropWaiter(id: string): void {
     if (!(route in waiters)) {
       return;
     }
-    waiters[route] = waiters[route].filter(
-      (w) => w.req !== req && w.res !== res
-    );
+    waiters[route] = waiters[route].filter((w) => w.id !== id);
     if (waiters[route].length === 0) {
       delete waiters[route];
     }

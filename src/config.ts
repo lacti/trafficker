@@ -1,10 +1,25 @@
 export default interface Config {
-  gateway?: {
-    port: number;
+  gateway?: GatewayConfig[];
+  proxy?: ProxyConfig[];
+}
+
+export interface GatewayConfig {
+  port: number;
+  defaultWaitingTimeout: number;
+  defaultWaiterTimeout: number;
+}
+
+export interface ProxyConfig {
+  gatewayAddress: string;
+  route: string;
+  targetAddress: string;
+  agentCount: number;
+  errorSleepMillis: {
+    min: number;
+    max: number;
   };
-  proxy?: {
-    gatewayAddress: string;
-    route: string;
-    targetAddress: string;
+  emptySleepMillis: {
+    min: number;
+    max: number;
   };
 }

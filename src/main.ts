@@ -1,30 +1,27 @@
 import * as fs from "fs";
 
 import Config from "./config";
-import newProxyServer from "./proxy/newProxyServer";
-import newServer from "./gateway/newServer";
-import useRoutes from "./gateway/routes";
+import startProxyServer from "./proxy/startProxyServer";
+import startServer from "./gateway/startServer";
+import useLogger from "./useLogger";
+
+const logger = useLogger({ name: "main" });
 
 function main() {
-  const configPath = process.argv[2];
-  if (!configPath) {
-    console.info(process.argv[0], process.argv[1], "config-file-path");
+  const configPath = process.argv[2] ?? "config.json";
+  if (!configPath || !fs.existsSync(configPath)) {
+    logger.info(process.argv[0], process.argv[1], "config-file-path");
     return;
   }
   const config = JSON.parse(fs.readFileSync(configPath, "utf8")) as Config;
   if (config.gateway) {
-    newServer().listen(config.gateway.port, () =>
-      console.info(`Listen on ${config.gateway!.port}`)
-    );
+    logger.info(config.gateway, "Start gateway");
+    config.gateway.map(startServer);
   }
 
   if (config.proxy) {
-    useRoutes().addRoute(config.proxy.route);
-    newProxyServer({
-      gatewayAddress: config.proxy.gatewayAddress,
-      targetAddress: config.proxy.targetAddress,
-      route: config.proxy.route,
-    }).catch(console.error);
+    logger.info(config.proxy, "Start proxy");
+    config.proxy.map(startProxyServer);
   }
 }
 
