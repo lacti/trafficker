@@ -13,7 +13,7 @@
   ],
   "proxy": [
     {
-      "route": "*",
+      "routes": ["*"],
       "gatewayAddress": "http://localhost:3000",
       "targetAddress": "http://localhost:8080",
       "agentCount": 4,
