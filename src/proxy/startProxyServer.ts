@@ -1,7 +1,7 @@
-import { ProxyConfig } from "../config";
+import ProxyConfig from "./proxyConfig";
 import newProxyServer from "./newProxyServer";
 import useLogger from "../useLogger";
-import useRoutes from "../gateway/routes";
+import useRoutes from "../gateway/useRoutes";
 
 const logger = useLogger({ name: "startServer" });
 const routes = useRoutes();

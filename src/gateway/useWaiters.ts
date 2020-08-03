@@ -8,12 +8,14 @@ interface Waiter {
   res: http.ServerResponse;
 }
 
-const waiters: {
-  [route: string]: Waiter[];
-} = {};
+export type Waiters = ReturnType<typeof useWaiters>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function useWaiters({ route }: { route: string }) {
+export default function useWaiters() {
+  const waiters: {
+    [route: string]: Waiter[];
+  } = {};
+
   function addWaiter({
     route,
     req,
@@ -29,14 +31,14 @@ export default function useWaiters({ route }: { route: string }) {
     return id;
   }
 
-  function isStillWaiting(id: string): boolean {
+  function isStillWaiting(route: string, id: string): boolean {
     if (!(route in waiters)) {
       return false;
     }
     return waiters[route].some((w) => w.id === id);
   }
 
-  function dropWaiter(id: string): void {
+  function dropWaiter(route: string, id: string): void {
     if (!(route in waiters)) {
       return;
     }
@@ -46,7 +48,7 @@ export default function useWaiters({ route }: { route: string }) {
     }
   }
 
-  function pollWaiter(): Waiter | null {
+  function pollWaiter(route: string): Waiter | null {
     if (!(route in waiters)) {
       return null;
     }

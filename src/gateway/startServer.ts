@@ -1,4 +1,4 @@
-import { GatewayConfig } from "../config";
+import GatewayConfig from "./gatewayConfig";
 import newServer from "./newServer";
 import useLogger from "../useLogger";
 

@@ -1,7 +1,9 @@
-let routes: string[] = [];
+export type Routes = ReturnType<typeof useRoutes>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useRoutes() {
+  let routes: string[] = [];
+
   function addRoute(route: string): boolean {
     if (hasRoute(route)) {
       return false;

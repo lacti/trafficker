@@ -1,4 +1,4 @@
-import { ProxyConfig } from "../config";
+import ProxyConfig from "./proxyConfig";
 import dequeue from "./dequeue";
 import requestHttp from "./requestHttp";
 import respond from "./respond";

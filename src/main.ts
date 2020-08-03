@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import Config from "./config";
+import { loadConfig } from "./config";
 import startProxyServer from "./proxy/startProxyServer";
 import startServer from "./gateway/startServer";
 import useLogger from "./useLogger";
@@ -13,7 +13,7 @@ function main() {
     logger.info(process.argv[0], process.argv[1], "config-file-path");
     return;
   }
-  const config = JSON.parse(fs.readFileSync(configPath, "utf8")) as Config;
+  const config = loadConfig(configPath);
   if (config.gateway) {
     logger.info(config.gateway, "Start gateway");
     config.gateway.map(startServer);

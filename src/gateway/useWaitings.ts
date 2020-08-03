@@ -1,12 +1,14 @@
 import HttpContext from "./httpContext";
 
-const waitings: {
-  [route: string]: { [id: string]: HttpContext };
-} = {};
+export type Waitings = ReturnType<typeof useWaitings>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function useWaitings({ route }: { route: string }) {
-  function addWaiting(context: HttpContext): HttpContext {
+export default function useWaitings() {
+  const waitings: {
+    [route: string]: { [id: string]: HttpContext };
+  } = {};
+
+  function addWaiting(route: string, context: HttpContext): HttpContext {
     if (!(route in waitings)) {
       waitings[route] = {};
     }
@@ -15,7 +17,7 @@ export default function useWaitings({ route }: { route: string }) {
     return context;
   }
 
-  function deleteWaiting(id: string): void {
+  function deleteWaiting(route: string, id: string): void {
     if (route in waitings) {
       if (id in waitings[route]) {
         delete waitings[route][id];
@@ -26,7 +28,7 @@ export default function useWaitings({ route }: { route: string }) {
     }
   }
 
-  function pollWaiting(): HttpContext | null {
+  function pollWaiting(route: string): HttpContext | null {
     if (!(route in waitings)) {
       return null;
     }
@@ -35,7 +37,7 @@ export default function useWaitings({ route }: { route: string }) {
     );
   }
 
-  function findWaiting(id: string): HttpContext | null {
+  function findWaiting(route: string, id: string): HttpContext | null {
     return route in waitings && id in waitings[route]
       ? waitings[route][id]
       : null;
