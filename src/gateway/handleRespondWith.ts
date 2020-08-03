@@ -3,6 +3,7 @@ import * as http from "http";
 import HttpHandler from "./httpHandler";
 import { Waitings } from "./useWaitings";
 import { removePrefixFromHeaders } from "../utils/editHeaders";
+import safeWriteHead from "./safeWriteHead";
 import { traffickerHeaderKeys } from "../constants";
 import useLogger from "../useLogger";
 
@@ -23,7 +24,11 @@ export default function handleRespondWith({
     res: http.ServerResponse;
   }): void {
     if (req.method?.toLowerCase() !== "post") {
-      return res.writeHead(404).end();
+      return safeWriteHead({
+        res,
+        statusCode: 404,
+        logContext: { url: req.url },
+      });
     }
 
     const id = req.headers[traffickerHeaderKeys.id] as string;
@@ -34,7 +39,11 @@ export default function handleRespondWith({
     const context = findWaiting(route, id);
     if (!context) {
       logger.debug({ route, id }, `No waiting context for`);
-      return res.writeHead(404).end();
+      return safeWriteHead({
+        res,
+        statusCode: 404,
+        logContext: { url: req.url },
+      });
     }
     deleteWaiting(route, id);
 
@@ -52,9 +61,14 @@ export default function handleRespondWith({
       .pipe(context.res)
       .on("error", (error) => {
         logger.error({ route, id, error }, `Cannot redirect`);
-        res.writeHead(500).end();
+        safeWriteHead({ res, statusCode: 500, logContext: { url: req.url } });
       })
-      .on("close", () => res.writeHead(200).end());
-    logger.info({ route, id }, `Redirect body to origin response`);
+      .on("close", () =>
+        safeWriteHead({ res, statusCode: 200, logContext: { url: req.url } })
+      );
+    logger.info(
+      { route, id, url: context.req.url },
+      `Redirect body to origin response`
+    );
   };
 }

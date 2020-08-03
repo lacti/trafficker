@@ -6,14 +6,15 @@ import { traffickerHeaderKeys } from "../constants";
 
 export interface DequeuedContext extends HttpRequest {
   id: string;
+  route: string;
 }
 
 export default async function dequeue({
   gatewayAddress,
-  route,
+  serializedRoutes,
 }: {
   gatewayAddress: string;
-  route: string;
+  serializedRoutes: string;
 }): Promise<DequeuedContext | null> {
   return new Promise<DequeuedContext | null>((resolve, reject) =>
     http
@@ -22,7 +23,7 @@ export default async function dequeue({
         {
           method: "POST",
           headers: {
-            [traffickerHeaderKeys.route]: route,
+            [traffickerHeaderKeys.route]: serializedRoutes,
           },
         },
         (response) => {
@@ -46,6 +47,7 @@ export default async function dequeue({
 function handleDequeueResponse(res: http.IncomingMessage): DequeuedContext {
   return {
     id: res.headers[traffickerHeaderKeys.id] as string,
+    route: res.headers[traffickerHeaderKeys.route] as string,
     url: res.headers[traffickerHeaderKeys.url] as string,
     method: res.headers[traffickerHeaderKeys.method] as string,
     headers: removePrefixFromHeaders(res.headers),

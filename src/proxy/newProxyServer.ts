@@ -2,6 +2,7 @@ import ProxyConfig from "./proxyConfig";
 import dequeue from "./dequeue";
 import requestHttp from "./requestHttp";
 import respond from "./respond";
+import serializeRoutes from "../routes/serializeRoutes";
 import useLogger from "../useLogger";
 
 const logger = useLogger({ name: "newProxyServer" });
@@ -10,18 +11,18 @@ const knownErrorPatterns = [/ECONNREFUSED/, /socket hang up/];
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default async function newProxyServer({
   config,
-  gatewayAddress,
-  route,
-  targetAddress,
 }: {
   config: ProxyConfig;
-  gatewayAddress: string;
-  route: string;
-  targetAddress: string;
 }) {
+  const { gatewayAddress, routes, targetAddress } = config;
+  if (!routes) {
+    throw new Error(`Invalid proxy routes: ${routes}`);
+  }
+  const serializedRoutes = serializeRoutes(routes);
+
   while (true) {
     try {
-      const context = await dequeue({ gatewayAddress, route });
+      const context = await dequeue({ gatewayAddress, serializedRoutes });
       if (context === null) {
         logger.trace(`No waiting context to serve`);
         await randomSleep(
@@ -49,12 +50,11 @@ export default async function newProxyServer({
 
       await respond({
         gatewayAddress,
-        route,
-        context: { ...response, id: context.id },
+        context: { ...response, id: context.id, route: context.route },
       });
-      logger.info(
+      logger.debug(
         {
-          route: route,
+          route: context.route,
           id: context.id,
           method: context.method,
           url: context.url,

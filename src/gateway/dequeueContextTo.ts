@@ -19,6 +19,7 @@ export default function dequeueContextTo({
   context.processing = true;
 
   res.setHeader(traffickerHeaderKeys.id, context.id);
+  res.setHeader(traffickerHeaderKeys.route, route);
   res.setHeader(traffickerHeaderKeys.url, context.req.url!);
   res.setHeader(traffickerHeaderKeys.method, context.req.method ?? "get");
   const prefixedHeaders = addPrefixToHeaders(context.req.headers);
@@ -42,5 +43,8 @@ export default function dequeueContextTo({
     `Redirect context`
   );
   context.req.pipe(res);
-  logger.info({ route, id: context.id }, `Redirect body from origin request`);
+  logger.info(
+    { route, id: context.id, url: context.req.url },
+    `Redirect body from origin request`
+  );
 }

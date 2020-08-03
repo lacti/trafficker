@@ -3,6 +3,7 @@ import HttpContext from "./httpContext";
 import { Waiters } from "./useWaiters";
 import { Waitings } from "./useWaitings";
 import dequeueContextTo from "./dequeueContextTo";
+import safeWriteHead from "./safeWriteHead";
 import useLogger from "../useLogger";
 
 const logger = useLogger({ name: "processOrPendContext" });
@@ -16,9 +17,11 @@ export interface ProcessOrPendContextEnv {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function processOrPendContextWith({
   config,
-  waitings: { addWaiting, findWaiting, deleteWaiting },
+  waitings,
   waiters: { pollWaiter },
 }: ProcessOrPendContextEnv) {
+  const { addWaiting } = waitings;
+  const dropIncompletedContext = dropIncompletedContextWith({ waitings });
   return function processOrPendContext({
     route,
     context,
@@ -35,26 +38,52 @@ export default function processOrPendContextWith({
       dequeueContextTo({ route, context, res: maybeWaiter.res });
     } else {
       // Pend context.
-      setTimeout(() => {
-        const incompleted = findWaiting(route, context.id);
-        if (incompleted !== null && incompleted.processing == false) {
-          logger.debug(
-            {
-              id: incompleted.id,
-              method: incompleted.req.method,
-              url: incompleted.req.url,
-              headers: incompleted.req.headers,
-            },
-            `Delete stale waiting context`
-          );
-          incompleted.res.writeHead(500).end();
-          deleteWaiting(route, incompleted.id);
-        }
-      }, config.defaultWaitingTimeout);
+      setTimeout(
+        () => dropIncompletedContext({ route, id: context.id }),
+        config.defaultWaitingTimeout
+      );
       logger.debug(
         { id: context.id, method: context.req.method, url: context.req.url },
         `Pending context`
       );
     }
+  };
+}
+
+function dropIncompletedContextWith({
+  waitings: { findWaiting, deleteWaiting },
+}: {
+  waitings: Pick<Waitings, "findWaiting" | "deleteWaiting">;
+}) {
+  return function dropIncompletedContext({
+    route,
+    id,
+  }: {
+    route: string;
+    id: string;
+  }) {
+    const incompleted = findWaiting(route, id);
+    if (incompleted === null || incompleted.processing) {
+      return;
+    }
+
+    logger.debug(
+      {
+        id: incompleted.id,
+        method: incompleted.req.method,
+        url: incompleted.req.url,
+        headers: incompleted.req.headers,
+      },
+      `Delete stale waiting context`
+    );
+    safeWriteHead({
+      res: incompleted.res,
+      statusCode: 500,
+      logContext: {
+        route,
+        id,
+      },
+    });
+    deleteWaiting(route, incompleted.id);
   };
 }

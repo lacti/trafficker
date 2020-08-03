@@ -8,11 +8,9 @@ import { traffickerHeaderKeys } from "../constants";
 export default async function respond({
   context,
   gatewayAddress,
-  route,
 }: {
   context: Omit<DequeuedContext, "url" | "method"> & HttpResponse;
   gatewayAddress: string;
-  route: string;
 }): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     const request = http
@@ -21,9 +19,9 @@ export default async function respond({
         {
           method: "POST",
           headers: {
-            [traffickerHeaderKeys.route]: route,
             [traffickerHeaderKeys.id]: context.id,
             [traffickerHeaderKeys.statusCode]: context.statusCode,
+            [traffickerHeaderKeys.route]: context.route,
             ...addPrefixToHeaders(context.headers),
           },
         },

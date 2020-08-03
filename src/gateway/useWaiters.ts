@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 
 interface Waiter {
   id: string;
+  routes: string[];
   req: http.IncomingMessage;
   res: http.ServerResponse;
 }
@@ -17,43 +18,54 @@ export default function useWaiters() {
   } = {};
 
   function addWaiter({
-    route,
+    routes,
     req,
     res,
   }: {
-    route: string;
+    routes: string[];
   } & Omit<Waiter, "id">): string {
-    if (!(route in waiters)) {
-      waiters[route] = [];
-    }
     const id = nanoid();
-    waiters[route].push({ id, req, res });
+    for (const route of routes) {
+      if (!(route in waiters)) {
+        waiters[route] = [];
+      }
+      waiters[route].push({ id, req, res, routes });
+    }
     return id;
   }
 
-  function isStillWaiting(route: string, id: string): boolean {
-    if (!(route in waiters)) {
-      return false;
+  function dropWaiter(routes: string[], id: string): boolean {
+    let deletedCount = 0;
+    for (const route of routes) {
+      if (!(route in waiters)) {
+        continue;
+      }
+      if (waiters[route].every((w) => w.id !== id)) {
+        continue;
+      }
+      ++deletedCount;
+      waiters[route] = waiters[route].filter((w) => w.id !== id);
+      if (waiters[route].length === 0) {
+        delete waiters[route];
+      }
     }
-    return waiters[route].some((w) => w.id === id);
-  }
-
-  function dropWaiter(route: string, id: string): void {
-    if (!(route in waiters)) {
-      return;
-    }
-    waiters[route] = waiters[route].filter((w) => w.id !== id);
-    if (waiters[route].length === 0) {
-      delete waiters[route];
-    }
+    return routes.length === deletedCount;
   }
 
   function pollWaiter(route: string): Waiter | null {
     if (!(route in waiters)) {
       return null;
     }
-    return waiters[route].shift() ?? null;
+    const maybeWaiter = waiters[route].shift();
+    if (!maybeWaiter) {
+      return null;
+    }
+    dropWaiter(
+      maybeWaiter.routes.filter((r) => r !== route),
+      maybeWaiter.id
+    );
+    return maybeWaiter;
   }
 
-  return { addWaiter, isStillWaiting, dropWaiter, pollWaiter };
+  return { addWaiter, dropWaiter, pollWaiter };
 }

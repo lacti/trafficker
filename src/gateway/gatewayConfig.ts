@@ -3,4 +3,5 @@ export default interface GatewayConfig {
   defaultWaitingTimeout: number;
   defaultWaiterTimeout: number;
   serverName?: string;
+  knownRoutes?: string[];
 }

@@ -7,18 +7,22 @@ import processOrPendContextWith, {
 import GatewayConfig from "./gatewayConfig";
 import HttpContext from "./httpContext";
 import HttpHandler from "./httpHandler";
+import { KnownRoutes } from "./useKnownRoutes";
 import { nanoid } from "nanoid";
 import parsePathname from "./parsePathname";
 import useLogger from "../useLogger";
-import useRoutes from "./useRoutes";
 
 const logger = useLogger({ name: "handlePend" });
 
 export interface HandlePendEnv extends ProcessOrPendContextEnv {
   config: GatewayConfig;
+  knownRoutes: KnownRoutes;
 }
 
 export default function handlePendWith(env: HandlePendEnv): HttpHandler {
+  const {
+    knownRoutes: { findRoute },
+  } = env;
   const processOrPendContext = processOrPendContextWith(env);
   return function handlePend({
     req,
@@ -30,14 +34,9 @@ export default function handlePendWith(env: HandlePendEnv): HttpHandler {
     const context: HttpContext = { id: nanoid(), req, res, processing: false };
 
     const pathname = parsePathname(req.url) ?? "";
-    const route = pathname.split(/\//)[0] ?? "";
-    logger.trace({ pathname, route }, `pathname`);
+    const route = findRoute(pathname);
+    logger.debug({ pathname, route }, `findRoute from pathname`);
 
-    const { hasRoute } = useRoutes();
-    if (hasRoute(route)) {
-      processOrPendContext({ route, context });
-    } else {
-      processOrPendContext({ route: "*", context });
-    }
+    processOrPendContext({ route, context });
   };
 }

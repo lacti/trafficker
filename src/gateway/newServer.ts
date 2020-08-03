@@ -6,8 +6,9 @@ import handleDequeueWith from "./handleDequeueWith";
 import handlePendWith from "./handlePendWith";
 import handleRespondWith from "./handleRespondWith";
 import parsePathname from "./parsePathname";
+import safeWriteHead from "./safeWriteHead";
 import useLogger from "../useLogger";
-import useRoutes from "./useRoutes";
+import useRoutes from "./useKnownRoutes";
 import useWaiters from "./useWaiters";
 import useWaitings from "./useWaitings";
 
@@ -20,10 +21,14 @@ export default function newServer({
 }): http.Server {
   const env = {
     config,
-    routes: useRoutes(),
+    knownRoutes: useRoutes(),
     waitings: useWaitings(),
     waiters: useWaiters(),
   };
+  if (config.knownRoutes) {
+    env.knownRoutes.addRoutes(config.knownRoutes);
+  }
+
   const handleDequeue = handleDequeueWith(env);
   const handleRespond = handleRespondWith(env);
   const handlePend = handlePendWith(env);
@@ -56,7 +61,11 @@ export default function newServer({
       route(parsePathname(req.url) ?? "")({ req, res });
     } catch (error) {
       logger.warn({ req, error }, "Error in http handler");
-      return res.writeHead(500).end();
+      return safeWriteHead({
+        res,
+        statusCode: 500,
+        logContext: { url: req.url },
+      });
     }
   });
 }

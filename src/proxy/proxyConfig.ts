@@ -1,6 +1,6 @@
 export default interface ProxyConfig {
   gatewayAddress: string;
-  route: string;
+  routes: string[];
   targetAddress: string;
   agentCount: number;
   errorSleepMillis: {
