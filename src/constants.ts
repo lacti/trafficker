@@ -2,8 +2,8 @@ export const traffickerHeaderKeys = {
   id: "x-trafficker-id",
   url: "x-trafficker-url",
   method: "x-trafficker-method",
+  header: "x-trafficker-header",
   route: "x-trafficker-route",
-  headerKeyPrefix: "x-trafficker-header-",
   statusCode: "x-trafficker-status-code",
 };
 

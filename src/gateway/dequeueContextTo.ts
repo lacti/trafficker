@@ -1,7 +1,6 @@
 import * as http from "http";
 
 import HttpContext from "./httpContext";
-import { addPrefixToHeaders } from "../utils/editHeaders";
 import { traffickerHeaderKeys } from "../constants";
 import useLogger from "../useLogger";
 
@@ -22,16 +21,14 @@ export default function dequeueContextTo({
   res.setHeader(traffickerHeaderKeys.route, route);
   res.setHeader(traffickerHeaderKeys.url, context.req.url!);
   res.setHeader(traffickerHeaderKeys.method, context.req.method ?? "get");
-  const prefixedHeaders = addPrefixToHeaders(context.req.headers);
-  for (const [key, value] of Object.entries(prefixedHeaders)) {
-    if (value !== undefined) {
-      logger.trace(
-        { route, id: context.id, key, value },
-        `Set header to trafficker header`
-      );
-      res.setHeader(key.toLowerCase(), value);
-    }
-  }
+
+  const headerJSON = JSON.stringify(context.req.headers);
+  res.setHeader(traffickerHeaderKeys.header, headerJSON);
+  logger.trace(
+    { route, id: context.id, header: context.req.headers, headerJSON },
+    `Set header to trafficker header`
+  );
+
   logger.debug(
     {
       route,

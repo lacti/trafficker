@@ -2,7 +2,6 @@ import * as http from "http";
 
 import { DequeuedContext } from "./dequeue";
 import HttpResponse from "./httpResponse";
-import { addPrefixToHeaders } from "../utils/editHeaders";
 import { traffickerHeaderKeys } from "../constants";
 
 export default async function respond({
@@ -22,7 +21,7 @@ export default async function respond({
             [traffickerHeaderKeys.id]: context.id,
             [traffickerHeaderKeys.statusCode]: context.statusCode,
             [traffickerHeaderKeys.route]: context.route,
-            ...addPrefixToHeaders(context.headers),
+            [traffickerHeaderKeys.header]: JSON.stringify(context.headers),
           },
         },
         (response) => resolve(response.statusCode === 200)

@@ -2,7 +2,6 @@ import * as http from "http";
 
 import HttpHandler from "./httpHandler";
 import { Waitings } from "./useWaitings";
-import { removePrefixFromHeaders } from "../utils/editHeaders";
 import safeWriteHead from "./safeWriteHead";
 import { traffickerHeaderKeys } from "../constants";
 import useLogger from "../useLogger";
@@ -47,7 +46,10 @@ export default function handleRespondWith({
     }
     deleteWaiting(route, id);
 
-    const originalHeaders = removePrefixFromHeaders(req.headers);
+    const originalHeaders = JSON.parse(
+      (req.headers[traffickerHeaderKeys.header] as string) ?? "{}"
+    ) as { [key: string]: string | string[] | undefined };
+
     for (const [key, value] of Object.entries(originalHeaders)) {
       if (value !== undefined) {
         logger.trace({ key, value }, `Set header to origin response`);

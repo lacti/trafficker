@@ -1,7 +1,6 @@
 import * as http from "http";
 
 import HttpRequest from "./httpRequest";
-import { removePrefixFromHeaders } from "../utils/editHeaders";
 import { traffickerHeaderKeys } from "../constants";
 
 export interface DequeuedContext extends HttpRequest {
@@ -50,7 +49,9 @@ function handleDequeueResponse(res: http.IncomingMessage): DequeuedContext {
     route: res.headers[traffickerHeaderKeys.route] as string,
     url: res.headers[traffickerHeaderKeys.url] as string,
     method: res.headers[traffickerHeaderKeys.method] as string,
-    headers: removePrefixFromHeaders(res.headers),
+    headers: JSON.parse(
+      (res.headers[traffickerHeaderKeys.header] as string) ?? "{}"
+    ),
     body: res,
   };
 }
