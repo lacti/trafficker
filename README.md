@@ -1,5 +1,7 @@
 # Trafficker
 
+![Overview](./docs/overview.png)
+
 ## Quick start
 
 ```json
