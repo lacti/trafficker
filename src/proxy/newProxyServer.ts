@@ -1,7 +1,7 @@
-import ProxyConfig from "./proxyConfig";
-import dequeue from "./dequeue";
-import requestHttp from "./requestHttp";
-import respond from "./respond";
+import ProxyConfig from "./models/ProxyConfig";
+import dequeue from "./support/dequeue";
+import requestHttp from "./support/requestHttp";
+import respond from "./support/respond";
 import serializeRoutes from "../routes/serializeRoutes";
 import useLogger from "../useLogger";
 

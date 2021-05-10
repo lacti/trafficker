@@ -1,6 +1,6 @@
 import AdminConfig from "../../admin/models/AdminConfig";
 import GatewayConfig from "../../gateway/models/GatewayConfig";
-import ProxyConfig from "../../proxy/proxyConfig";
+import ProxyConfig from "../../proxy/models/ProxyConfig";
 
 export default interface Config {
   gateway?: GatewayConfig[];

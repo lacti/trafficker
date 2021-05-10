@@ -1,7 +1,7 @@
 import * as http from "http";
 
-import HttpRequest from "./httpRequest";
-import HttpResponse from "./httpResponse";
+import HttpRequest from "../models/HttpRequest";
+import HttpResponse from "../models/HttpResponse";
 
 export default function requestHttp(
   context: HttpRequest

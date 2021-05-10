@@ -1,7 +1,7 @@
 import * as http from "http";
 
-import HttpRequest from "./httpRequest";
-import { traffickerHeaderKeys } from "../constants";
+import HttpRequest from "../models/HttpRequest";
+import { traffickerHeaderKeys } from "../../constants";
 
 export interface DequeuedContext extends HttpRequest {
   id: string;

@@ -1,8 +1,8 @@
 import * as http from "http";
 
 import { DequeuedContext } from "./dequeue";
-import HttpResponse from "./httpResponse";
-import { traffickerHeaderKeys } from "../constants";
+import HttpResponse from "../models/HttpResponse";
+import { traffickerHeaderKeys } from "../../constants";
 
 export default async function respond({
   context,

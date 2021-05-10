@@ -1,8 +1,8 @@
-import ProxyConfig from "./proxyConfig";
+import ProxyConfig from "./models/ProxyConfig";
 import newProxyServer from "./newProxyServer";
 import useLogger from "../useLogger";
 
-const logger = useLogger({ name: "startServer" });
+const logger = useLogger({ name: "startProxyServer" });
 
 export default function startProxyServer(config: ProxyConfig) {
   const { agentCount } = config;
