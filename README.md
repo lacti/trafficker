@@ -10,7 +10,8 @@
     {
       "port": 3000,
       "defaultWaitingTimeout": 6000,
-      "defaultWaiterTimeout": 30000
+      "defaultWaiterTimeout": 30000,
+      "stat": true
     }
   ],
   "proxy": [
@@ -26,9 +27,16 @@
       "emptySleepMillis": {
         "min": 1000,
         "max": 5000
+      },
+      "stat": {
+        "port": 3100
       }
     }
-  ]
+  ],
+  "admin": {
+    "port": 4000,
+    "shutdownSecret": "very-secret-key"
+  }
 }
 ```
 
