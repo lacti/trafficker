@@ -1,4 +1,5 @@
 import ProxyConfig from "./models/ProxyConfig";
+import UseProxyStats from "./models/UseProxyStats";
 import dequeue from "./support/dequeue";
 import requestHttp from "./support/requestHttp";
 import respond from "./support/respond";
@@ -10,8 +11,10 @@ const knownErrorPatterns = [/ECONNREFUSED/, /socket hang up/];
 
 export default async function newProxyServer({
   config,
+  stats: { increaseStat },
 }: {
   config: ProxyConfig;
+  stats: UseProxyStats;
 }) {
   const { gatewayAddress, routes, targetAddress } = config;
   if (!routes) {
@@ -21,8 +24,13 @@ export default async function newProxyServer({
 
   while (true) {
     try {
-      const context = await dequeue({ gatewayAddress, serializedRoutes });
+      const context = await dequeue({
+        gatewayAddress,
+        serializedRoutes,
+        increaseStat,
+      });
       if (context === null) {
+        increaseStat("dequeueNoContext");
         logger.trace({}, "No waiting context to serve");
         await randomSleep(
           config.emptySleepMillis.min,
@@ -41,15 +49,19 @@ export default async function newProxyServer({
         "Serve proxy request"
       );
       const response = await requestHttp({
-        url: targetAddress + context.url,
-        method: context.method,
-        headers: context.headers,
-        body: context.body,
+        context: {
+          url: targetAddress + context.url,
+          method: context.method,
+          headers: context.headers,
+          body: context.body,
+        },
+        increaseStat,
       });
 
       await respond({
         gatewayAddress,
         context: { ...response, id: context.id, route: context.route },
+        increaseStat,
       });
       logger.debug(
         {
@@ -64,6 +76,7 @@ export default async function newProxyServer({
       if (knownErrorPatterns.some((pattern) => pattern.test(error.message))) {
         logger.debug({ targetAddress, error }, "Proxy error but known issue");
       } else {
+        increaseStat("proxyError");
         logger.error({ targetAddress, error }, "Proxy error");
       }
       await randomSleep(

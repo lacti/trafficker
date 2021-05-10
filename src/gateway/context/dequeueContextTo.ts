@@ -1,7 +1,7 @@
 import * as http from "http";
 
 import HttpContext from "../models/HttpContext";
-import IncreaseGatewayStats from "../models/IncreaseGatewayStats";
+import IncreaseGatewayStat from "../models/IncreaseGatewayStat";
 import { traffickerHeaderKeys } from "../../constants";
 import useLogger from "../../useLogger";
 
@@ -16,7 +16,7 @@ export default function dequeueContextTo({
   route: string;
   context: HttpContext;
   res: http.ServerResponse;
-  increaseStat: IncreaseGatewayStats;
+  increaseStat: IncreaseGatewayStat;
 }): void {
   context.processing = true;
 

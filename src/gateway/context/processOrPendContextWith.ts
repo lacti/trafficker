@@ -1,6 +1,6 @@
 import GatewayConfig from "../models/GatewayConfig";
 import HttpContext from "../models/HttpContext";
-import IncreaseGatewayStats from "../models/IncreaseGatewayStats";
+import IncreaseGatewayStat from "../models/IncreaseGatewayStat";
 import UseGatewayStats from "../models/UseGatewayStats";
 import { UseWaiters } from "./useWaiters";
 import { UseWaitings } from "./useWaitings";
@@ -63,7 +63,7 @@ function dropIncompletedContextWith({
   increaseStat,
 }: {
   waitings: Pick<UseWaitings, "findWaiting" | "deleteWaiting">;
-  increaseStat: IncreaseGatewayStats;
+  increaseStat: IncreaseGatewayStat;
 }) {
   return function dropIncompletedContext({
     route,
