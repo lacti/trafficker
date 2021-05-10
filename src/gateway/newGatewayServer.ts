@@ -1,17 +1,18 @@
 import * as http from "http";
 
 import GatewayConfig from "./models/GatewayConfig";
+import GatewayStats from "./models/GatewayStats";
 import HttpHandler from "../models/HttpHandler";
 import handleDequeueWith from "./handlers/handleDequeueWith";
-import handleLogsWith from "./handlers/handleLogsWith";
 import handlePendWith from "./handlers/handlePendWith";
 import handleRespondWith from "./handlers/handleRespondWith";
-import handleStatsWith from "./handlers/handleStatsWith";
-import newStatusCodeOnlyHttpHandler from "../support/newStatusCodeOnlyHttpHandler";
+import handleStatsWith from "../stats/handlers/handleStatsWith";
+import { newGatewayStats } from "./models/GatewayStats";
 import parsePathname from "../support/parsePathname";
+import statusCodeOnlyHandlers from "../support/statusCodeOnlyHandlers";
 import useLogger from "../useLogger";
 import useRoutes from "./context/useKnownRoutes";
-import useStats from "./context/useStats";
+import useStats from "../stats/useStats";
 import useWaiters from "./context/useWaiters";
 import useWaitings from "./context/useWaitings";
 
@@ -27,18 +28,18 @@ export default function newGatewayServer({
     knownRoutes: useRoutes(),
     waitings: useWaitings(),
     waiters: useWaiters(),
-    stats: useStats(),
+    stats: useStats<GatewayStats>({ newStats: newGatewayStats }),
   };
   if (config.knownRoutes) {
     env.knownRoutes.addRoutes(config.knownRoutes);
   }
 
-  const handle500 = newStatusCodeOnlyHttpHandler(500);
   const predefinedHandlers: { [route: string]: HttpHandler } = {
     _dequeue: handleDequeueWith(env),
     _respond: handleRespondWith(env),
-    _stat: handleStatsWith(env),
-    _log: handleLogsWith(env),
+    _stat: config.stat
+      ? handleStatsWith<GatewayStats>(env)
+      : statusCodeOnlyHandlers.$404,
   };
 
   const handlePend = handlePendWith(env);
@@ -55,7 +56,7 @@ export default function newGatewayServer({
       route(parsePathname(req.url) ?? "")({ req, res });
     } catch (error) {
       logger.warn({ req, error }, "Error in http handler");
-      return handle500({ req, res });
+      return statusCodeOnlyHandlers.$500({ req, res });
     }
   });
 }

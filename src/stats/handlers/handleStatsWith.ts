@@ -1,20 +1,21 @@
 import * as http from "http";
 
+import BaseStats from "../models/BaseStats";
 import HttpHandler from "../../models/HttpHandler";
-import { UseStats } from "../context/useStats";
+import { UseStats } from "../useStats";
 import responseSimpleAsync from "../../support/responseSimpleAsync";
 import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handleStats" });
 
-export interface HandleStatsEnv {
-  stats: UseStats;
+export interface HandleStatsEnv<S extends BaseStats<S>> {
+  stats: UseStats<S>;
 }
 
-export default function handleStatsWith({
+export default function handleStatsWith<S extends BaseStats<S>>({
   stats: { getStats, increaseStat, clearStats },
-}: HandleStatsEnv): HttpHandler {
+}: HandleStatsEnv<S>): HttpHandler {
   async function handleRespondStats(res: http.ServerResponse) {
     increaseStat("statsAccessed");
     const stats = getStats();

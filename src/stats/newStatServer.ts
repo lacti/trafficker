@@ -1,29 +1,26 @@
 import * as http from "http";
 
-import AdminConfig from "./models/AdminConfig";
+import BaseStats from "./models/BaseStats";
 import HttpHandler from "../models/HttpHandler";
-import handleConfigWith from "./handlers/handleConfigWith";
-import handleLogsWith from "./handlers/handleLogsWith";
-import handleShutdownWith from "../admin/handlers/handleShutdownWith";
+import { UseStats } from "./useStats";
+import handleStatsWith from "./handlers/handleStatsWith";
 import parsePathname from "../support/parsePathname";
 import statusCodeOnlyHandlers from "../support/statusCodeOnlyHandlers";
 import useLogger from "../useLogger";
 
-const logger = useLogger({ name: "newAdminServer" });
+const logger = useLogger({ name: "newStatServer" });
 
-export default function newAdminServer({
-  config,
+export default function newStatServer<S extends BaseStats<S>>({
+  stats,
 }: {
-  config: AdminConfig;
+  stats: UseStats<S>;
 }): http.Server {
   const env = {
-    config,
+    stats,
   };
 
   const predefinedHandlers: { [route: string]: HttpHandler } = {
-    shutdown: handleShutdownWith(env),
-    config: handleConfigWith(env),
-    logs: handleLogsWith(env),
+    stat: handleStatsWith<S>(env),
   };
 
   function route(pathname: string): HttpHandler {

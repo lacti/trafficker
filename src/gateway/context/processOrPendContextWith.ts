@@ -1,7 +1,7 @@
-import { IncreaseStat, UseStats } from "./useStats";
-
 import GatewayConfig from "../models/GatewayConfig";
 import HttpContext from "../models/HttpContext";
+import IncreaseGatewayStats from "../models/IncreaseGatewayStats";
+import UseGatewayStats from "../models/UseGatewayStats";
 import { UseWaiters } from "./useWaiters";
 import { UseWaitings } from "./useWaitings";
 import dequeueContextTo from "./dequeueContextTo";
@@ -14,7 +14,7 @@ export interface ProcessOrPendContextEnv {
   config: GatewayConfig;
   waitings: UseWaitings;
   waiters: UseWaiters;
-  stats: UseStats;
+  stats: UseGatewayStats;
 }
 
 export default function processOrPendContextWith({
@@ -63,7 +63,7 @@ function dropIncompletedContextWith({
   increaseStat,
 }: {
   waitings: Pick<UseWaitings, "findWaiting" | "deleteWaiting">;
-  increaseStat: IncreaseStat;
+  increaseStat: IncreaseGatewayStats;
 }) {
   return function dropIncompletedContext({
     route,

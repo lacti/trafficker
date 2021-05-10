@@ -1,4 +1,6 @@
-export default interface Stats {
+import StatStats from "../../stats/models/StatStats";
+
+export default interface GatewayStats extends StatStats {
   dequeueInvalidRequest: number;
   dequeueStart: number;
   dequeueNoRoute: number;
@@ -37,7 +39,7 @@ export default interface Stats {
   configUpdated: number;
 }
 
-export function newStats(): Stats {
+export function newGatewayStats(): GatewayStats {
   return {
     dequeueInvalidRequest: 0,
     dequeueStart: 0,

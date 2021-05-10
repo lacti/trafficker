@@ -3,5 +3,5 @@ export default interface GatewayConfig {
   defaultWaitingTimeout: number;
   defaultWaiterTimeout: number;
   knownRoutes?: string[];
-  shutdownSecret?: string;
+  stat?: boolean;
 }

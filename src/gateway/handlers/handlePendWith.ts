@@ -7,8 +7,8 @@ import processOrPendContextWith, {
 import GatewayConfig from "../models/GatewayConfig";
 import HttpContext from "../models/HttpContext";
 import HttpHandler from "../../models/HttpHandler";
+import UseGatewayStats from "../models/UseGatewayStats";
 import { UseKnownRoutes } from "../context/useKnownRoutes";
-import { UseStats } from "../context/useStats";
 import { nanoid } from "nanoid";
 import parsePathname from "../../support/parsePathname";
 import useLogger from "../../useLogger";
@@ -18,7 +18,7 @@ const logger = useLogger({ name: "handlePend" });
 export interface HandlePendEnv extends ProcessOrPendContextEnv {
   config: GatewayConfig;
   knownRoutes: UseKnownRoutes;
-  stats: UseStats;
+  stats: UseGatewayStats;
 }
 
 export default function handlePendWith(env: HandlePendEnv): HttpHandler {

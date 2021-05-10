@@ -1,7 +1,7 @@
 import * as http from "http";
 
 import HttpHandler from "../../models/HttpHandler";
-import { UseStats } from "../context/useStats";
+import UseGatewayStats from "../models/UseGatewayStats";
 import { UseWaitings } from "../context/useWaitings";
 import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import { traffickerHeaderKeys } from "../../constants";
@@ -11,7 +11,7 @@ const logger = useLogger({ name: "handleRespond" });
 
 export interface HandleRespondEnv {
   waitings: UseWaitings;
-  stats: UseStats;
+  stats: UseGatewayStats;
 }
 
 export default function handleRespondWith({

@@ -2,7 +2,7 @@ import * as http from "http";
 
 import GatewayConfig from "../models/GatewayConfig";
 import HttpHandler from "../../models/HttpHandler";
-import { UseStats } from "../context/useStats";
+import UseGatewayStats from "../models/UseGatewayStats";
 import { UseWaiters } from "../context/useWaiters";
 import { UseWaitings } from "../context/useWaitings";
 import dequeueContextTo from "../context/dequeueContextTo";
@@ -17,7 +17,7 @@ export interface HandleDequeueEnv {
   config: GatewayConfig;
   waiters: UseWaiters;
   waitings: UseWaitings;
-  stats: UseStats;
+  stats: UseGatewayStats;
 }
 
 export default function handleDequeueWith({

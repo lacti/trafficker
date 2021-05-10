@@ -1,3 +1,4 @@
+import StatConfig from "../../stats/models/StatConfig";
 export default interface ProxyConfig {
   gatewayAddress: string;
   routes: string[];
@@ -11,4 +12,5 @@ export default interface ProxyConfig {
     min: number;
     max: number;
   };
+  stat?: StatConfig;
 }

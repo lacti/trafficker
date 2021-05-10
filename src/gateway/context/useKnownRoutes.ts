@@ -6,10 +6,10 @@ export default function useKnownRoutes() {
   let routes: string[] = [];
 
   function addRoutes(newRoutes: string[]): boolean {
-    const next = Array.from(
+    routes = Array.from(
       new Set([...routes, ...newRoutes.map((r) => r.toLowerCase().trim())])
     );
-    routes = next.sort((a, b) =>
+    routes.sort((a, b) =>
       b.length === a.length ? b.localeCompare(a) : b.length - a.length
     );
     return true;

@@ -2,7 +2,6 @@ import * as http from "http";
 
 import HttpHandler from "../../models/HttpHandler";
 import { URL } from "url";
-import { UseStats } from "../context/useStats";
 import { getLastLogs } from "../../useLogger";
 import responseEndAsync from "../../support/responseEndAsync";
 import responseWriteJsonAsync from "../../support/responseWriteJsonAsync";
@@ -11,13 +10,9 @@ import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handleLogs" });
 
-export interface HandleLogsEnv {
-  stats: UseStats;
-}
+export interface HandleLogsEnv {}
 
-export default function handleLogsWith({
-  stats: { increaseStat },
-}: HandleLogsEnv): HttpHandler {
+export default function handleLogsWith({}: HandleLogsEnv): HttpHandler {
   return async function handleLogs({
     req,
     res,
@@ -26,10 +21,8 @@ export default function handleLogsWith({
     res: http.ServerResponse;
   }): Promise<void> {
     if (req.method?.toLowerCase() !== "get") {
-      increaseStat("logsInvalidRequest");
       return statusCodeOnlyHandlers.$404({ req, res });
     }
-    increaseStat("logsAccessed");
     const count = +(
       new URL(req.url ?? "", "resolve://").searchParams.get("count") ?? "100"
     );
