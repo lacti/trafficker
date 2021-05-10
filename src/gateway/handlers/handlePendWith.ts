@@ -6,11 +6,11 @@ import processOrPendContextWith, {
 
 import GatewayConfig from "../models/GatewayConfig";
 import HttpContext from "../models/HttpContext";
-import HttpHandler from "../models/HttpHandler";
+import HttpHandler from "../../models/HttpHandler";
 import { UseKnownRoutes } from "../context/useKnownRoutes";
 import { UseStats } from "../context/useStats";
 import { nanoid } from "nanoid";
-import parsePathname from "../support/parsePathname";
+import parsePathname from "../../support/parsePathname";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handlePend" });

@@ -1,9 +1,9 @@
 import * as http from "http";
 
-import HttpHandler from "../models/HttpHandler";
+import HttpHandler from "../../models/HttpHandler";
 import { UseStats } from "../context/useStats";
 import { UseWaitings } from "../context/useWaitings";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
+import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import { traffickerHeaderKeys } from "../../constants";
 import useLogger from "../../useLogger";
 
@@ -27,11 +27,7 @@ export default function handleRespondWith({
   }): void {
     if (req.method?.toLowerCase() !== "post") {
       increaseStat("respondInvalidRequest");
-      return responseSafeWriteHead({
-        res,
-        statusCode: 404,
-        logContext: { url: req.url },
-      });
+      return statusCodeOnlyHandlers.$404({ req, res });
     }
 
     increaseStat("respondStart");
@@ -45,11 +41,7 @@ export default function handleRespondWith({
     if (!context) {
       increaseStat("respondNoWaitingContext");
       logger.debug({ route, id }, "No waiting context for");
-      return responseSafeWriteHead({
-        res,
-        statusCode: 404,
-        logContext: { url: req.url },
-      });
+      return statusCodeOnlyHandlers.$404({ req, res });
     }
     increaseStat("respondGetWaitingContext");
     deleteWaiting(route, id);
@@ -73,19 +65,11 @@ export default function handleRespondWith({
       .on("error", (error) => {
         increaseStat("respondPipeError");
         logger.error({ route, id, error }, "Cannot redirect");
-        return responseSafeWriteHead({
-          res,
-          statusCode: 500,
-          logContext: { url: req.url },
-        });
+        return statusCodeOnlyHandlers.$500({ req, res });
       })
       .on("close", () => {
         increaseStat("respondPipeClose");
-        return responseSafeWriteHead({
-          res,
-          statusCode: 200,
-          logContext: { url: req.url },
-        });
+        return statusCodeOnlyHandlers.$200({ req, res });
       });
     logger.info(
       { route, id, url: context.req.url },

@@ -1,9 +1,9 @@
 import * as http from "http";
 
-import HttpHandler from "../models/HttpHandler";
+import HttpHandler from "../../models/HttpHandler";
 import { UseStats } from "../context/useStats";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
-import responseSimpleAsync from "../support/responseSimpleAsync";
+import responseSimpleAsync from "../../support/responseSimpleAsync";
+import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handleStats" });
@@ -45,11 +45,7 @@ export default function handleStatsWith({
         return await handleClearStats(res);
       default:
         increaseStat("statsInvalidRequest");
-        return responseSafeWriteHead({
-          res,
-          statusCode: 404,
-          logContext: { url: req.url },
-        });
+        return statusCodeOnlyHandlers.$404({ req, res });
     }
   };
 }

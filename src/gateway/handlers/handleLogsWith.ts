@@ -1,12 +1,12 @@
 import * as http from "http";
 
-import HttpHandler from "../models/HttpHandler";
+import HttpHandler from "../../models/HttpHandler";
 import { URL } from "url";
 import { UseStats } from "../context/useStats";
 import { getLastLogs } from "../../useLogger";
-import responseEndAsync from "../support/responseEndAsync";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
-import responseWriteJsonAsync from "../support/responseWriteJsonAsync";
+import responseEndAsync from "../../support/responseEndAsync";
+import responseWriteJsonAsync from "../../support/responseWriteJsonAsync";
+import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handleLogs" });
@@ -27,11 +27,7 @@ export default function handleLogsWith({
   }): Promise<void> {
     if (req.method?.toLowerCase() !== "get") {
       increaseStat("logsInvalidRequest");
-      return responseSafeWriteHead({
-        res,
-        statusCode: 404,
-        logContext: { url: req.url },
-      });
+      return statusCodeOnlyHandlers.$404({ req, res });
     }
     increaseStat("logsAccessed");
     const count = +(

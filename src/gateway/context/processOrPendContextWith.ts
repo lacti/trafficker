@@ -5,7 +5,7 @@ import HttpContext from "../models/HttpContext";
 import { UseWaiters } from "./useWaiters";
 import { UseWaitings } from "./useWaitings";
 import dequeueContextTo from "./dequeueContextTo";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
+import responseSafeWriteHead from "../../support/responseSafeWriteHead";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "processOrPendContext" });
@@ -17,7 +17,6 @@ export interface ProcessOrPendContextEnv {
   stats: UseStats;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function processOrPendContextWith({
   config,
   waitings,

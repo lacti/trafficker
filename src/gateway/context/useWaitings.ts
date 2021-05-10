@@ -2,7 +2,6 @@ import HttpContext from "../models/HttpContext";
 
 export type UseWaitings = ReturnType<typeof useWaitings>;
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useWaitings() {
   const waitings: {
     [route: string]: { [id: string]: HttpContext };

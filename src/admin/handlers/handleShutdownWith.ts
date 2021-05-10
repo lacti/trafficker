@@ -1,16 +1,15 @@
 import * as http from "http";
 
-import GatewayConfig from "../models/GatewayConfig";
-import HttpHandler from "../models/HttpHandler";
-import { UseStats } from "../context/useStats";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
+import AdminConfig from "../models/AdminConfig";
+import HttpHandler from "../../models/HttpHandler";
+import responseSimpleAsync from "../../support/responseSimpleAsync";
+import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handleStats" });
 
 export interface HandleShutdownEnv {
-  config: GatewayConfig;
-  stats: UseStats;
+  config: AdminConfig;
 }
 
 export default function handleShutdownWith({
@@ -29,13 +28,11 @@ export default function handleShutdownWith({
       req.headers["x-secret"] === shutdownSecret
     ) {
       logger.info({}, "Shutdown server");
+      await responseSimpleAsync(res, true);
+
       process.exit(0);
     } else {
-      return responseSafeWriteHead({
-        res,
-        statusCode: 404,
-        logContext: { url: req.url },
-      });
+      return statusCodeOnlyHandlers.$404({ req, res });
     }
   };
 }

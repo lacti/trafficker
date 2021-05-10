@@ -2,7 +2,7 @@ import * as http from "http";
 
 import responseEndAsync from "./responseEndAsync";
 import responseWriteJsonAsync from "./responseWriteJsonAsync";
-import useLogger from "../../useLogger";
+import useLogger from "../useLogger";
 
 const logger = useLogger({ name: "responseSimpleAsync" });
 

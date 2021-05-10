@@ -1,13 +1,13 @@
 import * as http from "http";
 
 import GatewayConfig from "../models/GatewayConfig";
-import HttpHandler from "../models/HttpHandler";
+import HttpHandler from "../../models/HttpHandler";
 import { UseStats } from "../context/useStats";
 import { UseWaiters } from "../context/useWaiters";
 import { UseWaitings } from "../context/useWaitings";
 import dequeueContextTo from "../context/dequeueContextTo";
 import deserializeRoutes from "../../routes/deserializeRoutes";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
+import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import { traffickerHeaderKeys } from "../../constants";
 import useLogger from "../../useLogger";
 
@@ -35,11 +35,7 @@ export default function handleDequeueWith({
   }): void {
     if (req.method?.toLowerCase() !== "post") {
       increaseStat("dequeueInvalidRequest");
-      return responseSafeWriteHead({
-        res,
-        statusCode: 404,
-        logContext: { url: req.url },
-      });
+      return statusCodeOnlyHandlers.$404({ req, res });
     }
 
     increaseStat("dequeueStart");
@@ -49,11 +45,7 @@ export default function handleDequeueWith({
     logger.debug({ routes }, "Dequeue");
     if (routes.length === 0) {
       increaseStat("dequeueNoRoute");
-      return responseSafeWriteHead({
-        res,
-        statusCode: 404,
-        logContext: { url: req.url },
-      });
+      return statusCodeOnlyHandlers.$404({ req, res });
     }
 
     // Dequeue immediately.
@@ -78,11 +70,7 @@ export default function handleDequeueWith({
       if (dropWaiter(routes, waiterId)) {
         increaseStat("dequeueWaiterDropped");
         logger.debug({ routes, waiterId }, "No waiting context for");
-        responseSafeWriteHead({
-          res,
-          statusCode: 404,
-          logContext: { url: req.url },
-        });
+        statusCodeOnlyHandlers.$404({ req, res });
       }
     }, config.defaultWaiterTimeout);
   };

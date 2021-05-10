@@ -1,6 +1,6 @@
 import * as http from "http";
 
-import useLogger from "../../useLogger";
+import useLogger from "../useLogger";
 
 const logger = useLogger({ name: "safeWriteHead" });
 

@@ -1,25 +1,23 @@
 import * as http from "http";
 
 import GatewayConfig from "./models/GatewayConfig";
-import HttpHandler from "./models/HttpHandler";
-import handleConfigWith from "./handlers/handleConfigWith";
+import HttpHandler from "../models/HttpHandler";
 import handleDequeueWith from "./handlers/handleDequeueWith";
 import handleLogsWith from "./handlers/handleLogsWith";
 import handlePendWith from "./handlers/handlePendWith";
 import handleRespondWith from "./handlers/handleRespondWith";
-import handleShutdownWith from "./handlers/handleShutdownWith";
 import handleStatsWith from "./handlers/handleStatsWith";
-import parsePathname from "./support/parsePathname";
-import responseSafeWriteHead from "./support/responseSafeWriteHead";
+import newStatusCodeOnlyHttpHandler from "../support/newStatusCodeOnlyHttpHandler";
+import parsePathname from "../support/parsePathname";
 import useLogger from "../useLogger";
 import useRoutes from "./context/useKnownRoutes";
 import useStats from "./context/useStats";
 import useWaiters from "./context/useWaiters";
 import useWaitings from "./context/useWaitings";
 
-const logger = useLogger({ name: "newServer" });
+const logger = useLogger({ name: "newGatewayServer" });
 
-export default function newServer({
+export default function newGatewayServer({
   config,
 }: {
   config: GatewayConfig;
@@ -35,13 +33,12 @@ export default function newServer({
     env.knownRoutes.addRoutes(config.knownRoutes);
   }
 
+  const handle500 = newStatusCodeOnlyHttpHandler(500);
   const predefinedHandlers: { [route: string]: HttpHandler } = {
     _dequeue: handleDequeueWith(env),
     _respond: handleRespondWith(env),
     _stat: handleStatsWith(env),
     _log: handleLogsWith(env),
-    _shutdown: handleShutdownWith(env),
-    _config: handleConfigWith(env),
   };
 
   const handlePend = handlePendWith(env);
@@ -58,11 +55,7 @@ export default function newServer({
       route(parsePathname(req.url) ?? "")({ req, res });
     } catch (error) {
       logger.warn({ req, error }, "Error in http handler");
-      return responseSafeWriteHead({
-        res,
-        statusCode: 500,
-        logContext: { url: req.url },
-      });
+      return handle500({ req, res });
     }
   });
 }

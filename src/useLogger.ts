@@ -17,7 +17,6 @@ export function getLastLogs(count: number): LogTuple[] {
   return lastLogs.slice(0, count);
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useLogger({
   name,
   level: filteredLevel = (process.env.LOGGER?.toLowerCase() ??

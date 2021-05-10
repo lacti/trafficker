@@ -8,7 +8,6 @@ import useLogger from "../useLogger";
 const logger = useLogger({ name: "newProxyServer" });
 const knownErrorPatterns = [/ECONNREFUSED/, /socket hang up/];
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default async function newProxyServer({
   config,
 }: {

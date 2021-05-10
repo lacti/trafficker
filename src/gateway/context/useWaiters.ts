@@ -11,7 +11,6 @@ interface Waiter {
 
 export type UseWaiters = ReturnType<typeof useWaiters>;
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useWaiters() {
   const waiters: {
     [route: string]: Waiter[];

@@ -1,25 +1,19 @@
 import * as http from "http";
 
-import HttpHandler from "../models/HttpHandler";
-import { UseStats } from "../context/useStats";
+import HttpHandler from "../../models/HttpHandler";
 import getStream from "get-stream";
 import loadConfig from "../../config/loadConfig";
-import responseSafeWriteHead from "../support/responseSafeWriteHead";
-import responseSimpleAsync from "../support/responseSimpleAsync";
+import responseSimpleAsync from "../../support/responseSimpleAsync";
+import statusCodeOnlyHandlers from "../../support/statusCodeOnlyHandlers";
 import updateConfig from "../../config/updateConfig";
 import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "handleConfig" });
 
-export interface HandleConfigEnv {
-  stats: UseStats;
-}
+export interface HandleConfigEnv {}
 
-export default function handleConfigWith({
-  stats: { increaseStat },
-}: HandleConfigEnv): HttpHandler {
+export default function handleConfigWith({}: HandleConfigEnv): HttpHandler {
   async function handleRespondConfig(res: http.ServerResponse) {
-    increaseStat("configAccessed");
     const config = loadConfig();
     logger.info({ config }, "Get config");
     await responseSimpleAsync(res, config);
@@ -29,8 +23,6 @@ export default function handleConfigWith({
     req: http.IncomingMessage,
     res: http.ServerResponse
   ) {
-    increaseStat("configUpdated");
-
     try {
       const body = await getStream(req);
       const newConfig = JSON.parse(body);
@@ -57,12 +49,7 @@ export default function handleConfigWith({
       case "put":
         return await handleUpdateConfig(req, res);
       default:
-        increaseStat("statsInvalidRequest");
-        return responseSafeWriteHead({
-          res,
-          statusCode: 404,
-          logContext: { url: req.url },
-        });
+        return statusCodeOnlyHandlers.$404({ req, res });
     }
   };
 }
