@@ -1,6 +1,21 @@
 type LogLevel = "trace" | "debug" | "info" | "warn" | "error";
 
+interface LogTuple {
+  timestamp: string;
+  level: string;
+  name: string;
+  context: unknown;
+  message: string;
+}
+
 export type Logger = ReturnType<typeof useLogger>;
+
+const lastLogs: LogTuple[] = [];
+const countToKeepLastLogs = +(process.env.LAST_LOGS ?? "3000");
+
+export function getLastLogs(count: number): LogTuple[] {
+  return lastLogs.slice(0, count);
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useLogger({
@@ -12,11 +27,23 @@ export default function useLogger({
   level?: LogLevel;
 }) {
   function logger(level: LogLevel) {
-    return (...args: unknown[]) => {
+    return (context: unknown, message: string) => {
       if (logLevelToSeverity(level) >= logLevelToSeverity(filteredLevel)) {
         const now = new Date().toISOString();
         const upLevel = level.toUpperCase();
-        console[level](`[${now}][${upLevel}][${name}]`, ...args);
+        console[level](`[${now}][${upLevel}][${name}]`, context, message);
+
+        // Keep last logs to debugging.
+        lastLogs.unshift({
+          timestamp: now,
+          level: upLevel,
+          name,
+          context,
+          message,
+        });
+        while (lastLogs.length > countToKeepLastLogs) {
+          lastLogs.pop();
+        }
       }
     };
   }

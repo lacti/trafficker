@@ -9,7 +9,7 @@ interface Waiter {
   res: http.ServerResponse;
 }
 
-export type Waiters = ReturnType<typeof useWaiters>;
+export type UseWaiters = ReturnType<typeof useWaiters>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useWaiters() {

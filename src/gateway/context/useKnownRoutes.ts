@@ -1,6 +1,6 @@
 const anyRoute = "*";
 
-export type KnownRoutes = ReturnType<typeof useKnownRoutes>;
+export type UseKnownRoutes = ReturnType<typeof useKnownRoutes>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useKnownRoutes() {

@@ -1,10 +1,11 @@
-import { parse as parseURL } from "url";
+import { URL } from "url";
 
 export default function parsePathname(url?: string): string | null {
   if (!url) {
     return null;
   }
-  const { pathname } = parseURL(url);
+
+  const { pathname } = new URL(url, "resolve://");
   if (!pathname) {
     return null;
   }

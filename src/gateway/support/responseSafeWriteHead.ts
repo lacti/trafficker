@@ -1,10 +1,10 @@
 import * as http from "http";
 
-import useLogger from "../useLogger";
+import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "safeWriteHead" });
 
-export default function safeWriteHead({
+export default function responseSafeWriteHead({
   statusCode,
   res,
   logContext,

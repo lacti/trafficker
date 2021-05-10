@@ -1,8 +1,9 @@
 import * as http from "http";
 
-import HttpContext from "./httpContext";
-import { traffickerHeaderKeys } from "../constants";
-import useLogger from "../useLogger";
+import HttpContext from "../models/HttpContext";
+import { IncreaseStat } from "./useStats";
+import { traffickerHeaderKeys } from "../../constants";
+import useLogger from "../../useLogger";
 
 const logger = useLogger({ name: "dequeueContextTo" });
 
@@ -10,10 +11,12 @@ export default function dequeueContextTo({
   route,
   context,
   res,
+  increaseStat,
 }: {
   route: string;
   context: HttpContext;
   res: http.ServerResponse;
+  increaseStat: IncreaseStat;
 }): void {
   context.processing = true;
 
@@ -26,9 +29,10 @@ export default function dequeueContextTo({
   res.setHeader(traffickerHeaderKeys.header, headerJSON);
   logger.trace(
     { route, id: context.id, header: context.req.headers, headerJSON },
-    `Set header to trafficker header`
+    "Set header to trafficker header"
   );
 
+  increaseStat("dequeueContextRedirectStart");
   logger.debug(
     {
       route,
@@ -37,11 +41,22 @@ export default function dequeueContextTo({
       method: context.req.method,
       headers: context.req.headers,
     },
-    `Redirect context`
+    "Redirect context"
   );
-  context.req.pipe(res);
+  context.req
+    .pipe(res)
+    .on("error", (error) => {
+      increaseStat("dequeueContextRedirectError");
+      logger.error(
+        { route, id: context.id, url: context.req.url, error },
+        "Error while redirect body to waiter"
+      );
+    })
+    .on("close", () => {
+      increaseStat("dequeueContextRedirectClose");
+    });
   logger.info(
     { route, id: context.id, url: context.req.url },
-    `Redirect body from origin request`
+    "Redirect body from origin request"
   );
 }

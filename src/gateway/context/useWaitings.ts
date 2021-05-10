@@ -1,6 +1,6 @@
-import HttpContext from "./httpContext";
+import HttpContext from "../models/HttpContext";
 
-export type Waitings = ReturnType<typeof useWaitings>;
+export type UseWaitings = ReturnType<typeof useWaitings>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function useWaitings() {

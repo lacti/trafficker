@@ -24,7 +24,7 @@ export default async function newProxyServer({
     try {
       const context = await dequeue({ gatewayAddress, serializedRoutes });
       if (context === null) {
-        logger.trace(`No waiting context to serve`);
+        logger.trace({}, "No waiting context to serve");
         await randomSleep(
           config.emptySleepMillis.min,
           config.emptySleepMillis.max
@@ -39,7 +39,7 @@ export default async function newProxyServer({
           url: context.url,
           headers: context.headers,
         },
-        `Serve proxy request`
+        "Serve proxy request"
       );
       const response = await requestHttp({
         url: targetAddress + context.url,
@@ -59,7 +59,7 @@ export default async function newProxyServer({
           method: context.method,
           url: context.url,
         },
-        `Do proxy`
+        "Do proxy"
       );
     } catch (error) {
       if (knownErrorPatterns.some((pattern) => pattern.test(error.message))) {
