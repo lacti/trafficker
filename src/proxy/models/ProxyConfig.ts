@@ -4,6 +4,7 @@ export default interface ProxyConfig {
   routes: string[];
   targetAddress: string;
   agentCount: number;
+  maxAgentCount?: number;
   errorSleepMillis: {
     min: number;
     max: number;

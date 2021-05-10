@@ -22,7 +22,17 @@ export default interface ProxyStats extends StatStats {
   respondBodyPipeClose: number;
   respondNoBody: number;
 
-  proxyError: number;
+  proxyKnownError: number;
+  proxyUnknownError: number;
+
+  agentTooManyToSpawn: number;
+  agentSpawnNew: number;
+  agentCurrentCount: number;
+  agentCompleted: number;
+  agentCompletedOK: number;
+  agentCompletedNoContext: number;
+  agentCompletedError: number;
+  agentError: number;
 }
 
 export function newProxyStats(): ProxyStats {
@@ -52,6 +62,16 @@ export function newProxyStats(): ProxyStats {
     respondBodyPipeClose: 0,
     respondNoBody: 0,
 
-    proxyError: 0,
+    proxyKnownError: 0,
+    proxyUnknownError: 0,
+
+    agentTooManyToSpawn: 0,
+    agentSpawnNew: 0,
+    agentCurrentCount: 0,
+    agentCompleted: 0,
+    agentCompletedOK: 0,
+    agentCompletedNoContext: 0,
+    agentCompletedError: 0,
+    agentError: 0,
   };
 }

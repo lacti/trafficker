@@ -1,3 +1,4 @@
+import ProxyAgentResult from "./models/ProxyAgentResult";
 import ProxyConfig from "./models/ProxyConfig";
 import UseProxyStats from "./models/UseProxyStats";
 import dequeue from "./support/dequeue";
@@ -6,10 +7,10 @@ import respond from "./support/respond";
 import serializeRoutes from "../routes/serializeRoutes";
 import useLogger from "../useLogger";
 
-const logger = useLogger({ name: "newProxyServer" });
+const logger = useLogger({ name: "newProxyAgent" });
 const knownErrorPatterns = [/ECONNREFUSED/, /socket hang up/];
 
-export default async function newProxyServer({
+export default function newProxyAgentWith({
   config,
   stats: { increaseStat },
 }: {
@@ -21,8 +22,7 @@ export default async function newProxyServer({
     throw new Error(`Invalid proxy routes: ${routes}`);
   }
   const serializedRoutes = serializeRoutes(routes);
-
-  while (true) {
+  return async function proxyAgentMain(): Promise<ProxyAgentResult> {
     try {
       const context = await dequeue({
         gatewayAddress,
@@ -36,7 +36,7 @@ export default async function newProxyServer({
           config.emptySleepMillis.min,
           config.emptySleepMillis.max
         );
-        continue;
+        return "NO_CONTEXT";
       }
 
       logger.trace(
@@ -72,19 +72,26 @@ export default async function newProxyServer({
         },
         "Do proxy"
       );
+      return "OK";
     } catch (error) {
       if (knownErrorPatterns.some((pattern) => pattern.test(error.message))) {
+        increaseStat("proxyKnownError");
         logger.debug({ targetAddress, error }, "Proxy error but known issue");
-      } else {
-        increaseStat("proxyError");
-        logger.error({ targetAddress, error }, "Proxy error");
+        await randomSleep(
+          config.emptySleepMillis.min,
+          config.emptySleepMillis.max
+        );
+        return "OK";
       }
+      increaseStat("proxyUnknownError");
+      logger.error({ targetAddress, error }, "Proxy error");
       await randomSleep(
         config.errorSleepMillis.min,
         config.errorSleepMillis.max
       );
+      return "ERROR";
     }
-  }
+  };
 }
 
 function randomSleep(min: number, max: number) {
